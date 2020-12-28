@@ -39,6 +39,7 @@ class Player(object):
         self.vel = 5
         self.health = 100
         self.alive = True
+        self.score = 0
 
     def hit(self, damage):
         self.damage = damage
@@ -83,12 +84,15 @@ def deathScreen():
 
 
 def redraw():
+    text = font.render('Score: ' + str(player.score), False, (0,0,0))
+
     if player.alive == True:
         win.blit(background, (0, 0))
         
         player.draw(win)
         platform.draw(win)
         Health.draw(win)
+        win.blit(text, (20, 45))
         
     else:
         deathScreen()
@@ -98,6 +102,8 @@ def redraw():
 
 player = Player(win_width/2, win_height - 285)
 platform = Platform(330, 0)
+
+font = pygame.font.SysFont('comic sans', 50)
 
 hitCount = 0
 
@@ -137,6 +143,8 @@ while run:
         platform_num = random.randint(0,2)
         platform_x = random.randint(40, 730)
         platform.y = 0
+
+        player.score += 1
     
     else:
         platform.y += platform.vel
