@@ -23,6 +23,7 @@ character_right = pygame.image.load('img/character_right.png')
 character_left = pygame.image.load('img/character_left.png')
 background = pygame.image.load('img/background.png')
 garbage = [pygame.image.load('img/can.png'), pygame.image.load('img/flaming-trash.png'), pygame.image.load('img/apple.png')]
+grave = pygame.image.load('img/grave.jpg')
 
 
 class Player(object):
@@ -31,6 +32,14 @@ class Player(object):
         self.y = y
         self.vel = 5
         self.health = 100
+        self.alive = True
+
+    def hit(self, damage):
+        self.damage = damage
+        self.health -= self.damage
+
+    def reset(self):
+        self.__init__(win_width/2, win_height - 285)
 
     def draw(self, win):
         if facing == "right":    
@@ -45,23 +54,38 @@ class Platform(object):
         self.x = x
         self.y = y
         self.vel = 4*level
+        self.resetHeight = 1200
 
-    def hit(self, damage):
-        self.damage = damage
-
-        player.health -= self.damage
-
+    def reset(self):
+        self.y = self.resetHeight
     
     def draw(self, win):
         win.blit(garbage[platform_num], (platform_x, self.y))
 
 
+class Health(object):
+    def draw(win):
+        # red background
+        pygame.draw.rect(win, (255, 0, 0), (win_width-200, 50, 150, 20))
+
+        # green foreground
+        pygame.draw.rect(win, (0, 255, 0), (win_width-200, 50, player.health*1.5, 20))
+
+
+def deathScreen():
+    win.blit(grave, (0,0))
+
 
 def redraw():
-    win.blit(background, (0, 0))
-    
-    player.draw(win)
-    platform.draw(win)
+    if player.alive == True:
+        win.blit(background, (0, 0))
+        
+        player.draw(win)
+        platform.draw(win)
+        Health.draw(win)
+        
+    else:
+        deathScreen()
 
     pygame.display.update()
 
@@ -80,6 +104,19 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            pos = pygame.mouse.get_pos()
+
+            if pos[0] >= 148 and pos[0] <= 347:
+                if pos[1] >= 713 and pos[1] <= 790:
+                    player.reset()
+                    platform.reset()
+            
+            elif pos[0] >= 446 and pos[0] <= 750:
+                if pos[1] >= 709 and pos[1] <= 787:
+                    print("Thank you for playing!")
+                    run = False
     
 
     if keys[pygame.K_a] and player.x > 0:
@@ -90,7 +127,7 @@ while run:
         facing = "right"
         player.x += player.vel
     
-    if platform.y == win_height - 284:
+    if platform.y == win_height - 284 or platform.y == platform.resetHeight:
         platform_num = random.randint(0,2)
         platform_x = random.randint(40, 730)
         platform.y = 0
@@ -102,7 +139,13 @@ while run:
     # check for collision with garbage
     if player.y >= platform.y and player.y - 100 <= platform.y:
         if player.x <= platform_x and player.x + 100 >= platform_x:
-            platform.hit(20)
+            platform.reset()
+
+            if player.health <= 20:
+                player.alive = False
+            
+            else:
+                player.hit(20)
 
 
     redraw()
