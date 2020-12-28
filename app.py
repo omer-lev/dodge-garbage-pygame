@@ -12,7 +12,6 @@ mixer.music.load("audio/music.mp3")
 mixer.music.set_volume(0.1)
 mixer.music.play()
 
-level = 1
 facing = "right"
 platform_init = random.randint(0, 2)
 platform_num = platform_init
@@ -60,7 +59,7 @@ class Platform(object):
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.vel = 4*level
+        self.vel = 4
         self.resetHeight = 1200
 
     def reset(self):
@@ -160,6 +159,10 @@ while run:
             
             else:
                 player.hit(20)
-
+    
+    if player.score % 10 == 0 and player.score != 0:
+        platform.vel = 4 + (2*(player.score / 10))
+    
+    print(platform.vel)
 
     redraw()
