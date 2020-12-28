@@ -30,6 +30,7 @@ class Player(object):
         self.x = x
         self.y = y
         self.vel = 5
+        self.health = 100
 
     def draw(self, win):
         if facing == "right":    
@@ -44,6 +45,12 @@ class Platform(object):
         self.x = x
         self.y = y
         self.vel = 4*level
+
+    def hit(self, damage):
+        self.damage = damage
+
+        player.health -= self.damage
+
     
     def draw(self, win):
         win.blit(garbage[platform_num], (platform_x, self.y))
@@ -62,6 +69,7 @@ def redraw():
 player = Player(win_width/2, win_height - 285)
 platform = Platform(330, 0)
 
+hitCount = 0
 
 run = True
 while run:
@@ -74,11 +82,11 @@ while run:
             run = False
     
 
-    if keys[pygame.K_a]:
+    if keys[pygame.K_a] and player.x > 0:
         facing = "left"
         player.x -= player.vel
 
-    if keys[pygame.K_d]:
+    if keys[pygame.K_d] and player.x < win_width - 100:
         facing = "right"
         player.x += player.vel
     
@@ -90,4 +98,11 @@ while run:
     else:
         platform.y += platform.vel
     
+
+    # check for collision with garbage
+    if player.y >= platform.y and player.y - 100 <= platform.y:
+        if player.x <= platform_x and player.x + 100 >= platform_x:
+            platform.hit(20)
+
+
     redraw()
