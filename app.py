@@ -1,10 +1,16 @@
 import pygame
+from pygame import mixer
 import random
 
 pygame.init()
+mixer.init()
 
 win_width = 800
 win_height = 800
+
+mixer.music.load("audio/music.mp3")
+mixer.music.set_volume(0.1)
+mixer.music.play()
 
 level = 1
 facing = "right"
