@@ -10,14 +10,12 @@ win_height = 800
 
 mixer.music.load("audio/music.mp3")
 mixer.music.set_volume(0.1)
-mixer.music.play()
+mixer.music.play(100)
 
 facing = "right"
 platform_init = random.randint(0, 2)
 platform_num = platform_init
 
-x_init = random.randint(40, 730)
-platform_x = x_init
 
 win = pygame.display.set_mode((win_width, win_height))
 pygame.display.set_caption("Hub world")
@@ -29,7 +27,7 @@ character_left = pygame.image.load('img/character_left.png')
 background = pygame.image.load('img/background.png')
 garbage = [pygame.image.load('img/can.png'), pygame.image.load('img/flaming-trash.png'), pygame.image.load('img/apple.png')]
 grave = pygame.image.load('img/grave.jpg')
-
+coinImg = pygame.image.load('img/coin.png')
 
 class Player(object):
     def __init__(self, x, y):
@@ -56,9 +54,9 @@ class Player(object):
 
 
 class Platform(object):
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+    def __init__(self):
+        self.x = random.randint(40, 730)
+        self.y = 0
         self.vel = 4
         self.resetHeight = 1200
 
@@ -66,7 +64,8 @@ class Platform(object):
         self.y = self.resetHeight
     
     def draw(self, win):
-        win.blit(garbage[platform_num], (platform_x, self.y))
+        win.blit(garbage[platform_num], (self.x, self.y))
+
 
 
 class Health(object):
@@ -90,6 +89,7 @@ def redraw():
         
         player.draw(win)
         platform.draw(win)
+        
         Health.draw(win)
         win.blit(text, (20, 45))
         
@@ -100,7 +100,7 @@ def redraw():
 
 
 player = Player(win_width/2, win_height - 285)
-platform = Platform(330, 0)
+platform = Platform()
 
 font = pygame.font.SysFont('comic sans', 50)
 
@@ -123,6 +123,7 @@ while run:
                 if pos[1] >= 713 and pos[1] <= 790:
                     player.reset()
                     platform.reset()
+                    platform.vel = 4
             
             elif pos[0] >= 446 and pos[0] <= 750:
                 if pos[1] >= 709 and pos[1] <= 787:
@@ -138,9 +139,9 @@ while run:
         facing = "right"
         player.x += player.vel
     
-    if platform.y == win_height - 284 or platform.y == platform.resetHeight:
+    if platform.y >= win_height - 284 or platform.y == platform.resetHeight:
         platform_num = random.randint(0,2)
-        platform_x = random.randint(40, 730)
+        platform.x = random.randint(40, 730)
         platform.y = 0
 
         player.score += 1
@@ -151,7 +152,7 @@ while run:
 
     # check for collision with garbage
     if player.y >= platform.y and player.y - 100 <= platform.y:
-        if player.x <= platform_x and player.x + 100 >= platform_x:
+        if player.x <= platform.x and player.x + 100 >= platform.x:
             platform.reset()
 
             if player.health <= 20:
@@ -163,6 +164,4 @@ while run:
     if player.score % 10 == 0 and player.score != 0:
         platform.vel = 4 + (2*(player.score / 10))
     
-    print(platform.vel)
-
     redraw()
